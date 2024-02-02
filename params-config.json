@@ -1,0 +1,7 @@
+{
+  "construct_id": "DingTalk-with-Bedrock",
+  "enable_bedrock_log": true,
+  "dingtalk_app_credential_secret_name": "dingtalk_app_credential",
+  "bedrock_model_id": "anthropic.claude-instant-v1",
+  "input_history_conversation_count": "5"
+}
