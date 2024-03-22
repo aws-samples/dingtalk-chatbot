@@ -3,13 +3,16 @@
 
 from langchain.chains import ConversationChain
 from langchain.memory import ConversationBufferMemory
-from langchain_community.llms.bedrock import Bedrock
 from langchain_core.prompts import PromptTemplate
+from langchain_community.llms.bedrock import Bedrock
+from langchain_community.chat_models import BedrockChat
 
 supported_models = [
     "anthropic.claude-v2:1",
     "anthropic.claude-v1",
     "anthropic.claude-instant-v1",
+    "anthropic.claude-3-haiku-20240307-v1:0",
+    "anthropic.claude-3-sonnet-20240229-v1:0"
 ]
 
 
@@ -30,6 +33,8 @@ class Chatbot:
             else 200000
             if "anthropic.claude-v2" in model_id
             else 100000
+            if "anthropic.claude-3" in model_id
+            else 200000
             if "anthropic.claude-v1" in model_id
             else 4000  # titian
         )
@@ -39,19 +44,27 @@ class Chatbot:
             "top_p": 0.5,
         }
 
-        if "anthropic" in model_id:
+        self.default_stop = []
+        if "anthropic.claude-v2" in model_id or "anthropic.claude-v1" in model_id:
             self.model_kwargs["max_tokens_to_sample"] = 1024
             self.model_kwargs["top_k"] = 50
+            self.default_stop = ["\n\nHuman:"]
+        elif "anthropic.claude-3" in model_id:
+            self.model_kwargs["max_tokens"] = 4096
         elif "llama" in model_id:
             self.model_kwargs["max_gen_len"] = 1024
 
-        self.default_stop = ["\n\nHuman:"] if "anthropic" in model_id else []
-
         self.stop = stop if stop is not None else self.default_stop
 
-        self.engine = Bedrock(
-            model_id=model_id, streaming=True, model_kwargs=self.model_kwargs
-        )
+        if "anthropic.claude-3" in model_id:
+            self.engine = BedrockChat(
+                model_id=model_id, streaming=True, model_kwargs=self.model_kwargs
+            )
+
+        else:
+            self.engine = Bedrock(
+                model_id=model_id, streaming=True, model_kwargs=self.model_kwargs
+            )
 
     def ask_stream(
         self,

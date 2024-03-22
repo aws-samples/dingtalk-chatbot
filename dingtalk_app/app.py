@@ -143,7 +143,7 @@ class CardBotHandler(dingtalk_stream.AsyncChatbotHandler):
         except Exception as e:
             self.logger.error(e)
             self.reply_text(
-                "上下文过多,请输入'重置'清理后再尝试",
+                "出了点小问题,请输入'重置'清理后再尝试,或者联系管理员.",
                 incoming_message,
             )
             return AckMessage.STATUS_OK, "OK"
